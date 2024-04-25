@@ -1,6 +1,7 @@
 package com.dicoding.asclepius.view
 
 import android.Manifest
+import android.app.Activity
 import android.content.Intent
 import android.icu.text.NumberFormat
 import android.net.Uri
@@ -13,7 +14,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import com.dicoding.asclepius.R
 import com.dicoding.asclepius.databinding.ActivityMainBinding
 import com.dicoding.asclepius.helper.ImageClassifierHelper
+import com.yalantis.ucrop.UCrop
 import org.tensorflow.lite.task.vision.classifier.Classifications
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -45,8 +48,7 @@ class MainActivity : AppCompatActivity() {
         ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
         if (uri != null) {
-            currentImageUri = uri
-            showImage()
+            uCropContract(uri)
         } else {
             Log.d("Photo Picker", "No media selected")
         }
@@ -57,6 +59,53 @@ class MainActivity : AppCompatActivity() {
         currentImageUri?.let {
             Log.d("Image URI", "showImage: $it")
             binding.previewImageView.setImageURI(it)
+        }
+    }
+
+    private fun uCropContract(sourceUri: Uri) {
+
+        val baseFileName = "cropped_image"
+        val fileExtension = ".jpg"
+
+        var index = 0
+        var destinationUri: Uri
+
+        // Loop sampai menemukan nama file yang unik
+        while (true) {
+            val fileName = if (index == 0) {
+                "$baseFileName$fileExtension"
+            } else {
+                "$baseFileName$index$fileExtension"
+            }
+
+            // Membuat Uri untuk file tujuan
+            destinationUri = Uri.fromFile(File(cacheDir, fileName))
+
+            // Cek apakah file dengan nama tersebut sudah ada
+            if (!File(destinationUri.path!!).exists()) {
+                break // Keluar dari loop jika nama file unik
+            }
+
+            index++ // Tambahkan indeks jika terjadi tabrakan
+        }
+        UCrop.of(sourceUri, destinationUri)
+            .withAspectRatio(1f, 1f)
+            .start(this);
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
+            val resultUri: Uri? = UCrop.getOutput(data!!)
+            // Process the cropped image URI here
+            resultUri?.let {
+                currentImageUri = it
+                showImage()
+            }
+        } else if (resultCode == UCrop.RESULT_ERROR) {
+            val cropError: Throwable? = UCrop.getError(data!!)
+            // Handle the crop error here
+            showToast(cropError.toString())
         }
     }
 
@@ -74,8 +123,9 @@ class MainActivity : AppCompatActivity() {
                         results?.forEach { result ->
                             val sortedCategories = result.categories.sortedByDescending { it.score }
                             classifyResult = sortedCategories.joinToString("\n") {
-                                    "${it.label} " + NumberFormat.getPercentInstance().format(it.score).trim()
-                                }
+                                "${it.label} " + NumberFormat.getPercentInstance().format(it.score)
+                                    .trim()
+                            }
                         }
                         Log.d("move to result", "masa g bisa")
                         moveToResult()
@@ -95,4 +145,6 @@ class MainActivity : AppCompatActivity() {
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
+
+
 }
