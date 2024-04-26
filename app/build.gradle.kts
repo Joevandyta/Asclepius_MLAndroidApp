@@ -20,7 +20,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField("String", "Base_API", "\"https://newsapi.org/\"")
+            buildConfigField("String", "API_Key", "\"bd1fcc58fd9e4b858df1aba64dba6c10\"")
+        }
         release {
+            buildConfigField("String", "Base_API", "\"https://newsapi.org/\"")
+            buildConfigField("String", "API_Key", "\"bd1fcc58fd9e4b858df1aba64dba6c10\"")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
@@ -38,8 +44,8 @@ android {
     buildFeatures {
         viewBinding = true
         mlModelBinding = true
+        buildConfig = true
     }
-
 }
 
 dependencies {
@@ -66,4 +72,9 @@ dependencies {
     //Room
     implementation("androidx.room:room-runtime:2.6.1")
     ksp("androidx.room:room-compiler:2.6.1")
+
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    //Retrofit
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 }

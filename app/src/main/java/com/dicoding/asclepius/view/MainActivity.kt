@@ -94,7 +94,7 @@ class MainActivity : AppCompatActivity() {
         }
         UCrop.of(sourceUri, destinationUri)
             .withAspectRatio(1f, 1f)
-            .start(this);
+            .start(this)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

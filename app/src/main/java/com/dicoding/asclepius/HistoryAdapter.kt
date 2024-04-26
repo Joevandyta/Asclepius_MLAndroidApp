@@ -34,7 +34,6 @@ class HistoryAdapter : RecyclerView.Adapter<HistoryAdapter.ViewHolder>() {
 
     override fun getItemCount(): Int = listHistory.size
 
-
     inner class ViewHolder(private val binding: ItemHistoryRowBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(historyData: HistoryData) {
             binding.root.setOnClickListener {
