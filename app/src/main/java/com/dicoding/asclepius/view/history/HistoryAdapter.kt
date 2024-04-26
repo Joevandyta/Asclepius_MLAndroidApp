@@ -1,4 +1,4 @@
-package com.dicoding.asclepius
+package com.dicoding.asclepius.view.history
 
 import android.net.Uri
 import android.view.LayoutInflater

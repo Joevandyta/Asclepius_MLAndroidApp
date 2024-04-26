@@ -1,4 +1,4 @@
-package com.dicoding.asclepius.view
+package com.dicoding.asclepius.view.main
 
 import android.app.Activity
 import android.content.Intent
@@ -70,10 +70,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun uCropContract(sourceUri: Uri) {
-
         val baseFileName = "cropped_image"
         val fileExtension = ".jpg"
-
         var index = 0
         var destinationUri: Uri
 
@@ -83,13 +81,10 @@ class MainActivity : AppCompatActivity() {
             } else {
                 "$baseFileName$index$fileExtension"
             }
-
             destinationUri = Uri.fromFile(File(cacheDir, fileName))
-
             if (!File(destinationUri.path!!).exists()) {
                 break
             }
-
             index++
         }
         UCrop.of(sourceUri, destinationUri)
@@ -101,20 +96,17 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK && requestCode == UCrop.REQUEST_CROP) {
             val resultUri: Uri? = UCrop.getOutput(data!!)
-            // Process the cropped image URI here
             resultUri?.let {
                 currentImageUri = it
                 showImage()
             }
         } else if (resultCode == UCrop.RESULT_ERROR) {
             val cropError: Throwable? = UCrop.getError(data!!)
-            // Handle the crop error here
             showToast(cropError.toString())
         }
     }
 
     private fun analyzeImage() {
-        // TODO: Menganalisa gambar yang berhasil ditampilkan.
         currentImageUri?.let {uri ->
             imageClassifierHelper = ImageClassifierHelper(
                 context = this,
@@ -144,7 +136,6 @@ class MainActivity : AppCompatActivity() {
                                 label = classifyLabel
                             )
                         )
-                        Log.d("move to result", "masa g bisa")
                         moveToResult(classifyResult, classifyLabel)
                     }
                 })
@@ -165,12 +156,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate menu resource
         menuInflater.inflate(R.menu.menu_bar, menu)
         return true
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle item selection
         return when (item.itemId) {
             R.id.history_btn -> {
                 val intent = Intent(this, HistoryActivity::class.java)

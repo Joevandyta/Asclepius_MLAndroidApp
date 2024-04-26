@@ -1,26 +1,19 @@
-package com.dicoding.asclepius
+package com.dicoding.asclepius.view.result
 
-import android.net.Uri
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.lifecycle.MutableLiveData
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.dicoding.asclepius.R
 import com.dicoding.asclepius.data.Articles
-import com.dicoding.asclepius.database.HistoryData
 import com.dicoding.asclepius.databinding.ItemArticleRowBinding
-import com.dicoding.asclepius.databinding.ItemHistoryRowBinding
-import com.dicoding.asclepius.helper.ClassifyDiffCallback
 
 class ArticlesAdapter(private val article: List<Articles>): RecyclerView.Adapter<ArticlesAdapter.ViewHolder>(){
-
     private var onItemClickCallback: OnItemClickCallBack? = null
 
-    fun setOnItemClickCallback(onItemClickCallback: ArticlesAdapter.OnItemClickCallBack) {
+    fun setOnItemClickCallback(onItemClickCallback: OnItemClickCallBack) {
         this.onItemClickCallback = onItemClickCallback
     }
-
 
     inner class ViewHolder(private val binding: ItemArticleRowBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(articles: Articles) {
@@ -39,12 +32,12 @@ class ArticlesAdapter(private val article: List<Articles>): RecyclerView.Adapter
         }
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArticlesAdapter.ViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val binding = ItemArticleRowBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return ViewHolder(binding)
     }
 
-    override fun onBindViewHolder(holder: ArticlesAdapter.ViewHolder, position: Int) = holder.bind(article[position])
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) = holder.bind(article[position])
 
     override fun getItemCount(): Int = article.size
 

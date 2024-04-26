@@ -3,24 +3,16 @@ package com.dicoding.asclepius.view.result
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.dicoding.asclepius.ArticlesAdapter
-import com.dicoding.asclepius.HistoryAdapter
 import com.dicoding.asclepius.data.Articles
-import com.dicoding.asclepius.database.HistoryData
 import com.dicoding.asclepius.databinding.ActivityResultBinding
-import com.dicoding.asclepius.view.history.HistoryViewModel
 
 class ResultActivity : AppCompatActivity() {
     private lateinit var binding: ActivityResultBinding
     private lateinit var viewModel: ResultViewModel
-    private lateinit var adapter: ArticlesAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
-
         super.onCreate(savedInstanceState)
         binding = ActivityResultBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -32,6 +24,10 @@ class ResultActivity : AppCompatActivity() {
             rvNews.layoutManager = LinearLayoutManager(this@ResultActivity)
             rvNews.setHasFixedSize(true)
         }
+        bindingView(imageUri, result.toString())
+    }
+
+    private fun bindingView(imageUri: Uri, result: String){
         viewModel.setSearchArticle()
         viewModel.listArticles.observe(this) {
             val adapter = ArticlesAdapter(it)
@@ -41,7 +37,6 @@ class ResultActivity : AppCompatActivity() {
                     val intent = Intent(Intent.ACTION_VIEW, Uri.parse(data.url))
                     startActivity(intent)
                 }
-
             })
         }
         binding.apply {

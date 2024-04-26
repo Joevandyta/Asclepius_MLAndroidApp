@@ -9,7 +9,6 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 class HistoryDataRepository(application: Application) {
-
     private val mHistory: HistoryDao
     private val executorService: ExecutorService = Executors.newSingleThreadExecutor()
 
@@ -23,5 +22,4 @@ class HistoryDataRepository(application: Application) {
     fun insertHistory(historyData: HistoryData) {
         executorService.execute { mHistory.insert(historyData) }
     }
-
 }

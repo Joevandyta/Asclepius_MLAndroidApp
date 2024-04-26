@@ -62,7 +62,6 @@ class ImageClassifierHelper(
         // TODO: mengklasifikasikan imageUri dari gambar statis. DONE
         if (imageClassifier == null) setupImageClassifier()
 
-
         val imageProcessor = ImageProcessor.Builder()
             .add(ResizeOp(224, 224, ResizeOp.ResizeMethod.NEAREST_NEIGHBOR))
             .add(CastOp(DataType.FLOAT32))
@@ -86,6 +85,4 @@ class ImageClassifierHelper(
     companion object {
         private const val TAG = "ImageClassifierHelper"
     }
-
-
 }
