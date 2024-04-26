@@ -1,6 +1,5 @@
 package com.dicoding.asclepius.view
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.icu.text.NumberFormat
@@ -8,12 +7,19 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.ViewModelProvider
 import com.dicoding.asclepius.R
+import com.dicoding.asclepius.database.HistoryData
 import com.dicoding.asclepius.databinding.ActivityMainBinding
 import com.dicoding.asclepius.helper.ImageClassifierHelper
+import com.dicoding.asclepius.view.history.HistoryActivity
+import com.dicoding.asclepius.view.history.HistoryViewModel
+import com.dicoding.asclepius.view.result.ResultActivity
 import com.yalantis.ucrop.UCrop
 import org.tensorflow.lite.task.vision.classifier.Classifications
 import java.io.File
@@ -21,13 +27,14 @@ import java.io.File
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var imageClassifierHelper: ImageClassifierHelper
+    private lateinit var viewModel: HistoryViewModel
     private var currentImageUri: Uri? = null
-    private var classifyResult = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        viewModel = ViewModelProvider(this)[HistoryViewModel::class.java]
 
         binding.galleryButton.setOnClickListener { startGallery() }
         binding.analyzeButton.setOnClickListener {
@@ -70,7 +77,6 @@ class MainActivity : AppCompatActivity() {
         var index = 0
         var destinationUri: Uri
 
-        // Loop sampai menemukan nama file yang unik
         while (true) {
             val fileName = if (index == 0) {
                 "$baseFileName$fileExtension"
@@ -78,15 +84,13 @@ class MainActivity : AppCompatActivity() {
                 "$baseFileName$index$fileExtension"
             }
 
-            // Membuat Uri untuk file tujuan
             destinationUri = Uri.fromFile(File(cacheDir, fileName))
 
-            // Cek apakah file dengan nama tersebut sudah ada
             if (!File(destinationUri.path!!).exists()) {
-                break // Keluar dari loop jika nama file unik
+                break
             }
 
-            index++ // Tambahkan indeks jika terjadi tabrakan
+            index++
         }
         UCrop.of(sourceUri, destinationUri)
             .withAspectRatio(1f, 1f)
@@ -111,7 +115,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun analyzeImage() {
         // TODO: Menganalisa gambar yang berhasil ditampilkan.
-        currentImageUri?.let {
+        currentImageUri?.let {uri ->
             imageClassifierHelper = ImageClassifierHelper(
                 context = this,
                 classifierListener = object : ImageClassifierHelper.ClassifierListener {
@@ -120,25 +124,39 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     override fun onResults(results: List<Classifications>?) {
+                        var classifyResult = ""
+                        var classifyLabel = ""
                         results?.forEach { result ->
                             val sortedCategories = result.categories.sortedByDescending { it.score }
+
+                            sortedCategories.forEach{
+                                classifyLabel = it.label
+                            }
                             classifyResult = sortedCategories.joinToString("\n") {
                                 "${it.label} " + NumberFormat.getPercentInstance().format(it.score)
                                     .trim()
                             }
                         }
+                        viewModel.saveHistory(
+                            HistoryData(
+                                result = classifyResult,
+                                image = currentImageUri.toString(),
+                                label = classifyLabel
+                            )
+                        )
                         Log.d("move to result", "masa g bisa")
-                        moveToResult()
+                        moveToResult(classifyResult, classifyLabel)
                     }
                 })
-            imageClassifierHelper.classifyStaticImage(it)
+            imageClassifierHelper.classifyStaticImage(uri)
         } ?: showToast("Tidak ada gambar yang diinput")
     }
 
-    private fun moveToResult() {
+    private fun moveToResult(classifyResult: String, classifyLabel: String ) {
         val intent = Intent(this@MainActivity, ResultActivity::class.java)
         intent.putExtra(ResultActivity.EXTRA_IMAGE_URI, currentImageUri.toString())
         intent.putExtra(ResultActivity.EXTRA_RESULT, classifyResult)
+        intent.putExtra(ResultActivity.EXTRA_LABEL, classifyLabel)
         startActivity(intent)
     }
 
@@ -146,5 +164,19 @@ class MainActivity : AppCompatActivity() {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
-
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        // Inflate menu resource
+        menuInflater.inflate(R.menu.menu_bar, menu)
+        return true
+    }
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        // Handle item selection
+        return when (item.itemId) {
+            R.id.history_btn -> {
+                val intent = Intent(this, HistoryActivity::class.java)
+                startActivity(intent)
+                true
+            }else -> super.onOptionsItemSelected(item)
+        }
+    }
 }
