@@ -1,10 +1,8 @@
 package com.dicoding.asclepius.helper
 
-import android.content.ContentResolver
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
-import android.media.Image
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -16,15 +14,14 @@ import org.tensorflow.lite.support.image.ImageProcessor
 import org.tensorflow.lite.support.image.TensorImage
 import org.tensorflow.lite.support.image.ops.ResizeOp
 import org.tensorflow.lite.task.core.BaseOptions
-import org.tensorflow.lite.task.core.vision.ImageProcessingOptions
 import org.tensorflow.lite.task.vision.classifier.Classifications
 import org.tensorflow.lite.task.vision.classifier.ImageClassifier
 
 
 class ImageClassifierHelper(
-    var threshold: Float = 0.1f,
-    var maxResults: Int = 3,
-    val modelName: String = "cancer_classification.tflite",
+    private var threshold: Float = 0.1f,
+    private var maxResults: Int = 3,
+    private val modelName: String = "cancer_classification.tflite",
     val context: Context,
     val classifierListener: ClassifierListener?
 ) {

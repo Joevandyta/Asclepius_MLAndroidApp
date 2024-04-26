@@ -24,11 +24,4 @@ class HistoryDataRepository(application: Application) {
         executorService.execute { mHistory.insert(historyData) }
     }
 
-    fun deleteHistory(historyData: HistoryData) {
-        executorService.execute { mHistory.delete(historyData) }
-    }
-
-    fun getHistory(id: Int): LiveData<HistoryData> {
-        return mHistory.getHistory(id)
-    }
 }
